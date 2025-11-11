@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calm Circuit – Accessible Vagus-Friendly Toolkit</title>
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      :root {
+        --cc-bg: #0b1020;
+        --cc-card: #11182b;
+        --cc-accent: #7dd3fc;
+        --cc-text: #e5e7eb;
+      }
+      body {
+        background: linear-gradient(180deg, #0b1020, #10172a);
+        color: var(--cc-text);
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      }
+      .od-enabled {
+        font-family: "OpenDyslexic", system-ui, -apple-system, Segoe UI, Roboto,
+          Arial, sans-serif;
+      }
+      /* If you have the font locally, place TTF/OTF in ./fonts and keep this face */
+      @font-face {
+        font-family: "OpenDyslexic";
+        src: url("fonts/OpenDyslexic-Regular.otf") format("opentype");
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      .cc-card {
+        background: rgba(17, 24, 43, 0.85);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(125, 211, 252, 0.25);
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+      .cc-outline {
+        border: 2px dashed rgba(125, 211, 252, 0.4);
+      }
+      .btn-xl {
+        padding: 0.9rem 1.25rem;
+        font-size: 1.15rem;
+        border-radius: 1rem;
+      }
+      .cc-progress {
+        height: 1rem;
+      }
+      .circle {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        border: 4px solid var(--cc-accent);
+        display: grid;
+        place-items: center;
+      }
+      .circle-inner {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--cc-accent);
+      }
+      .sr-only-focusable:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+      }
+      .visually-hidden-focusable:active,
+      .visually-hidden-focusable:focus {
+        clip: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        position: static;
+        width: auto;
+      }
+      .reduced-motion * {
+        transition: none !important;
+        animation: none !important;
+      }
+      .link-muted {
+        color: #a3a3a3;
+      }
+      .form-range::-webkit-slider-thumb {
+        background: var(--cc-accent);
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-light"
+      href="#main"
+      id="skip"
+      >Skip to content</a
+    >
+
+    <header class="container py-4">
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="circle" aria-hidden="true">
+            <div class="circle-inner"></div>
+          </div>
+          <div>
+            <h1 class="h3 m-0">Calm Circuit</h1>
+            <p class="m-0 text-white-50">
+              Breath • Hum • Check-in — simple tools to help your nervous system
+              settle.
+            </p>
+          </div>
+        </div>
+        <div class="ms-auto d-flex gap-2">
+          <button
+            id="vagusToggle"
+            class="btn btn-outline-info btn-sm"
+            aria-label="Open: What is the vagus nerve?"
+          >
+            Vagus 101
+          </button>
+          <button
+            id="odToggle"
+            class="btn btn-outline-info btn-sm"
+            aria-pressed="false"
+            aria-label="Toggle Open Dyslexic font"
+          >
+            Dyslexic-friendly font
+          </button>
+          <button
+            id="contrastToggle"
+            class="btn btn-outline-light btn-sm"
+            aria-pressed="false"
+            aria-label="Toggle high contrast"
+          >
+            High contrast
+          </button>
+          <button
+            id="motionToggle"
+            class="btn btn-outline-light btn-sm"
+            aria-pressed="false"
+            aria-label="Toggle reduced motion"
+          >
+            Reduced motion
+          </button>
+          <button
+            id="voiceToggle"
+            class="btn btn-outline-light btn-sm"
+            aria-pressed="false"
+            aria-label="Toggle voice guidance"
+          >
+            Voice
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="container pb-5">
+      <!-- Safety note -->
+      <div class="alert alert-info cc-outline" role="alert">
+        <strong>Heads-up:</strong> If you have heart, breathing, or dizziness
+        issues, talk to a clinician before breath-holding or humming practices.
+        Stop if you feel unwell.
+      </div>
+
+      <div class="row g-4">
+        <!-- 4-7-8 Breath -->
+        <section class="col-12 col-lg-6">
+          <div class="p-4 cc-card h-100">
+            <h2 class="h4">4-7-8 Breathing</h2>
+            <p class="mb-3">
+              Guided cycle to slow heart rate and support a parasympathetic
+              reset. Use the defaults or set your own.
+            </p>
+
+            <div class="row g-2 align-items-end mb-3">
+              <div class="col-4">
+                <label for="inhale" class="form-label">Inhale (s)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="20"
+                  step="1"
+                  id="inhale"
+                  class="form-control"
+                  value="4"
+                />
+              </div>
+              <div class="col-4">
+                <label for="hold" class="form-label">Hold (s)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="30"
+                  step="1"
+                  id="hold"
+                  class="form-control"
+                  value="7"
+                />
+              </div>
+              <div class="col-4">
+                <label for="exhale" class="form-label">Exhale (s)</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  step="1"
+                  id="exhale"
+                  class="form-control"
+                  value="8"
+                />
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="circle" aria-hidden="true">
+                <div id="dot" class="circle-inner"></div>
+              </div>
+              <div>
+                <div id="breathStatus" class="fs-5" aria-live="polite">
+                  Ready
+                </div>
+                <div
+                  class="progress cc-progress mt-2"
+                  role="progressbar"
+                  aria-label="Breath step progress"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  <div
+                    id="breathProgress"
+                    class="progress-bar"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="breathStart" class="btn btn-info btn-xl">
+                Start
+              </button>
+              <button id="breathStop" class="btn btn-outline-light btn-xl">
+                Stop
+              </button>
+              <div class="ms-auto d-flex align-items-center gap-2">
+                <label for="cycles" class="form-label m-0">Cycles</label>
+                <input
+                  type="number"
+                  id="cycles"
+                  class="form-control"
+                  style="width: 5.5rem"
+                  value="4"
+                  min="1"
+                  max="20"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Humming timer -->
+        <section class="col-12 col-lg-6">
+          <div class="p-4 cc-card h-100">
+            <h2 class="h4">Humming Timer</h2>
+            <p class="mb-2">
+              Gentle hum to your comfort for vagal resonance. Try 2–5 minutes.
+              Optional reference tone.
+            </p>
+            <div class="row g-2 align-items-end mb-3">
+              <div class="col-6">
+                <label for="humMinutes" class="form-label">Minutes</label>
+                <input
+                  type="number"
+                  id="humMinutes"
+                  class="form-control"
+                  min="1"
+                  max="15"
+                  value="2"
+                />
+              </div>
+              <div class="col-6">
+                <label for="humPitch" class="form-label"
+                  >Reference Tone (Hz)</label
+                >
+                <input
+                  type="range"
+                  id="humPitch"
+                  class="form-range"
+                  min="90"
+                  max="220"
+                  step="1"
+                  value="130"
+                />
+                <div class="d-flex justify-content-between small">
+                  <span>90</span><span id="hzLabel">130</span><span>220</span>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button id="humStart" class="btn btn-info btn-xl">Start</button>
+              <button id="humStop" class="btn btn-outline-light btn-xl">
+                Stop
+              </button>
+              <button
+                id="toneToggle"
+                class="btn btn-outline-info btn-xl"
+                aria-pressed="false"
+              >
+                Reference Tone
+              </button>
+            </div>
+            <div class="mt-3">
+              <div id="humStatus" class="fs-5" aria-live="polite">Ready</div>
+              <div
+                class="progress cc-progress mt-2"
+                role="progressbar"
+                aria-label="Humming progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <div
+                  id="humProgress"
+                  class="progress-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tapping / Body scan -->
+        <section class="col-12 col-lg-6">
+          <div class="p-4 cc-card h-100">
+            <h2 class="h4">Ground & Tap</h2>
+            <p class="mb-3">
+              A brief sequence to orient, relax the face, and lightly tap along
+              arms and chest. Adjust or skip any step.
+            </p>
+            <ol id="tapList" class="list-group list-group-numbered mb-3">
+              <li
+                class="list-group-item bg-transparent text-white-50 border-secondary"
+              >
+                Orient: name 3 things you see, 2 you hear, 1 you feel.
+              </li>
+              <li
+                class="list-group-item bg-transparent text-white-50 border-secondary"
+              >
+                Relax jaw and tongue; soften eyes and forehead.
+              </li>
+              <li
+                class="list-group-item bg-transparent text-white-50 border-secondary"
+              >
+                Lightly tap from left hand up the arm to the chest, then right
+                side.
+              </li>
+              <li
+                class="list-group-item bg-transparent text-white-50 border-secondary"
+              >
+                Place a hand on chest + belly; take 3 slow breaths.
+              </li>
+            </ol>
+            <div class="d-flex gap-2">
+              <button id="tapPrev" class="btn btn-outline-light">
+                Previous
+              </button>
+              <button id="tapNext" class="btn btn-info">Next</button>
+              <div id="tapStatus" class="ms-auto" aria-live="polite">
+                Step 1 of 4
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Mood check-in -->
+        <section class="col-12 col-lg-6">
+          <div class="p-4 cc-card h-100">
+            <h2 class="h4">60-Second Reset & Check-in</h2>
+            <p class="mb-2">
+              Quick reset with an optional device buzz and a simple mood log
+              (stored on your device).
+            </p>
+            <div class="d-flex gap-2 flex-wrap mb-2">
+              <button id="resetBtn" class="btn btn-info btn-xl">
+                Start 60-sec Reset
+              </button>
+              <button id="resetStop" class="btn btn-outline-light btn-xl">
+                Stop
+              </button>
+            </div>
+            <div class="mb-3 small text-white-50">
+              If supported, your device may buzz briefly to cue focus (no data
+              leaves your device).
+            </div>
+
+            <form id="moodForm" class="row gy-2 gx-2 align-items-end">
+              <div class="col-12">
+                <label for="mood" class="form-label"
+                  >How do you feel now?</label
+                >
+                <div
+                  class="d-flex gap-2 flex-wrap"
+                  role="group"
+                  aria-label="Mood scale"
+                >
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="mood"
+                    id="m1"
+                    value="1"
+                  /><label class="btn btn-outline-light" for="m1">1</label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="mood"
+                    id="m2"
+                    value="2"
+                  /><label class="btn btn-outline-light" for="m2">2</label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="mood"
+                    id="m3"
+                    value="3"
+                    checked
+                  /><label class="btn btn-outline-light" for="m3">3</label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="mood"
+                    id="m4"
+                    value="4"
+                  /><label class="btn btn-outline-light" for="m4">4</label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="mood"
+                    id="m5"
+                    value="5"
+                  /><label class="btn btn-outline-light" for="m5">5</label>
+                </div>
+              </div>
+              <div class="col-12 col-md-8">
+                <label for="note" class="form-label"
+                  >Short note (optional)</label
+                >
+                <input
+                  id="note"
+                  class="form-control"
+                  placeholder="e.g., calmer, headache eased"
+                />
+              </div>
+              <div class="col-12 col-md-4 d-grid">
+                <button type="submit" class="btn btn-success">
+                  Save check-in
+                </button>
+              </div>
+            </form>
+
+            <div class="table-responsive mt-3">
+              <table
+                class="table table-dark table-striped table-sm align-middle"
+              >
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Mood</th>
+                    <th>Note</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="logBody"></tbody>
+              </table>
+            </div>
+            <div class="d-flex gap-2">
+              <button id="exportCsv" class="btn btn-outline-info">
+                Export CSV
+              </button>
+              <button id="clearLog" class="btn btn-outline-danger">
+                Clear Log
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="text-center mt-5 text-white-50 small">
+        <hr class="border-secondary" />
+        <p class="mb-1">
+          This self-care tool complements, not replaces, medical care. Stop any
+          practice that feels uncomfortable.
+        </p>
+        <p class="mb-0">
+          Made with Bootstrap • Privacy-friendly: all data stays in your
+          browser.
+        </p>
+      </footer>
+
+      <!-- Vagus 101 Modal -->
+      <div
+        class="modal fade"
+        id="vagusModal"
+        tabindex="-1"
+        aria-labelledby="vagusLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content text-bg-dark border border-info-subtle">
+            <div class="modal-header">
+              <h2 class="modal-title h4" id="vagusLabel">
+                What is the vagus nerve?
+              </h2>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p>
+                <strong>Definition.</strong> The vagus nerve (cranial nerve X)
+                is a paired, mixed nerve with extensive parasympathetic outflow
+                from the brainstem to the heart, lungs, and gastrointestinal
+                tract. It modulates heart rate, respiratory patterns,
+                gastrointestinal motility and secretions, and inflammatory tone.
+              </p>
+              <p>
+                <strong>Physiology.</strong> Activation of vagal pathways
+                supports the parasympathetic (“rest-and-digest”) state,
+                counterbalancing sympathetic (“fight-or-flight”) arousal. In
+                everyday self-care, slow breathing, soft humming, and
+                orienting/grounding can promote relaxation for many people.
+              </p>
+              <p>
+                <strong>Clinical context.</strong> Implantable vagus-nerve
+                stimulation (VNS) is an established therapy for specific
+                conditions (e.g., certain epilepsies; treatment-resistant
+                depression) under specialist care. Non-invasive self-care
+                practices are supportive strategies; they are not treatments for
+                medical disorders.
+              </p>
+              <ul class="mb-3">
+                <li>
+                  <em>Breathing:</em> 2–4 relaxed cycles (e.g., 4-7-8) with
+                  comfortable volumes; stop if dizzy or breathless.
+                </li>
+                <li>
+                  <em>Humming:</em> 1–3 minutes at a soft intensity; optional
+                  reference tone for pitch guidance.
+                </li>
+                <li>
+                  <em>Grounding:</em> Brief orienting, facial softening, and
+                  light tapping; shorten or skip steps as needed.
+                </li>
+              </ul>
+              <p class="small text-white-50 mb-0">
+                <strong>Safety.</strong> If you have cardiac, respiratory,
+                syncope/dizziness, or hearing concerns—or you are unsure—seek
+                clinical advice before breath-holds or tone-based practices.
+                Discontinue any exercise that provokes discomfort.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-outline-light"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Load Bootstrap JS first so Modal is available to our script -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- App script -->
+    <script>
+      // Utility: preferences
+      const qs = (s) => document.querySelector(s);
+      const prefer = {
+        get(k, d) {
+          try {
+            return JSON.parse(localStorage.getItem(k)) ?? d;
+          } catch {
+            return d;
+          }
+        },
+        set(k, v) {
+          localStorage.setItem(k, JSON.stringify(v));
+        },
+      };
+
+      // Toggles: Dyslexic font / Contrast / Reduced motion / Voice
+      const body = document.body;
+      const odToggle = qs("#odToggle");
+      const contrastToggle = qs("#contrastToggle");
+      const motionToggle = qs("#motionToggle");
+      const voiceToggle = qs("#voiceToggle");
+
+      function applyPrefs() {
+        body.classList.toggle("od-enabled", prefer.get("od", false));
+        body.classList.toggle("text-bg-dark", prefer.get("contrast", true));
+        body.classList.toggle(
+          "reduced-motion",
+          prefer.get("reducedMotion", false)
+        );
+        setPressed(odToggle, prefer.get("od", false));
+        setPressed(contrastToggle, prefer.get("contrast", true));
+        setPressed(motionToggle, prefer.get("reducedMotion", false));
+        setPressed(voiceToggle, prefer.get("voice", false));
+      }
+      function setPressed(btn, state) {
+        if (!btn) return;
+        btn.setAttribute("aria-pressed", String(state));
+        state ? btn.classList.add("active") : btn.classList.remove("active");
+      }
+
+      odToggle.addEventListener("click", () => {
+        prefer.set("od", !prefer.get("od", false));
+        applyPrefs();
+      });
+      contrastToggle.addEventListener("click", () => {
+        prefer.set("contrast", !prefer.get("contrast", true));
+        applyPrefs();
+      });
+      motionToggle.addEventListener("click", () => {
+        prefer.set("reducedMotion", !prefer.get("reducedMotion", false));
+        applyPrefs();
+      });
+      voiceToggle.addEventListener("click", () => {
+        prefer.set("voice", !prefer.get("voice", false));
+        applyPrefs();
+      });
+
+      applyPrefs();
+
+      // Voice guidance (optional)
+      function speak(text) {
+        if (!prefer.get("voice", false)) return;
+        try {
+          const msg = new SpeechSynthesisUtterance(text);
+          msg.rate = 0.95;
+          msg.pitch = 1.0;
+          msg.lang = "en-US";
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(msg);
+        } catch {
+          /* ignore */
+        }
+      }
+
+      // Vagus 101 modal trigger (Bootstrap already loaded above)
+      const vagusBtn = qs("#vagusToggle");
+      if (vagusBtn) {
+        const vagusModal = new bootstrap.Modal(
+          document.getElementById("vagusModal")
+        );
+        vagusBtn.addEventListener("click", () => vagusModal.show());
+      }
+
+      // 4-7-8 Breathing logic
+      let breathTimer = null,
+        breathPhaseIndex = 0,
+        breathRemaining = 0,
+        breathTotal = 0,
+        breathCycle = 0,
+        breathCycles = 4;
+      const breathStatus = qs("#breathStatus");
+      const breathProgress = qs("#breathProgress");
+      const dot = qs("#dot");
+      const startBtn = qs("#breathStart");
+      const stopBtn = qs("#breathStop");
+      const inh = qs("#inhale");
+      const hol = qs("#hold");
+      const exh = qs("#exhale");
+      const cycles = qs("#cycles");
+
+      function setStatus(text) {
+        breathStatus.textContent = text;
+        speak(text);
+      }
+
+      function nextBreathPhase() {
+        const phaseOrder = [
+          { name: "Inhale", secs: Number(inh.value) },
+          { name: "Hold", secs: Number(hol.value) },
+          { name: "Exhale", secs: Number(exh.value) },
+        ];
+        const phase = phaseOrder[breathPhaseIndex % 3];
+        breathRemaining = phase.secs;
+        breathTotal = phase.secs;
+        setStatus(phase.name);
+        const scale =
+          phase.name === "Inhale" ? 1.25 : phase.name === "Exhale" ? 0.75 : 1.0;
+        if (!body.classList.contains("reduced-motion")) {
+          dot.animate(
+            [{ transform: "scale(1)" }, { transform: `scale(${scale})` }],
+            {
+              duration: phase.secs * 1000,
+              fill: "forwards",
+              easing: "ease-in-out",
+            }
+          );
+        }
+      }
+
+      function tickBreath() {
+        if (breathRemaining <= 0) {
+          breathPhaseIndex++;
+          if (breathPhaseIndex % 3 === 0) {
+            breathCycle++;
+            if (breathCycle >= breathCycles) {
+              stopBreath();
+              setStatus("Complete");
+              return;
+            }
+          }
+          nextBreathPhase();
+        }
+        breathRemaining--;
+        const pct = Math.round(
+          ((breathTotal - breathRemaining) / Math.max(1, breathTotal)) * 100
+        );
+        breathProgress.style.width = pct + "%";
+      }
+
+      function startBreath() {
+        if (breathTimer) return;
+        breathCycle = 0;
+        breathPhaseIndex = 0;
+        breathCycles = Math.max(1, Number(cycles.value) || 4);
+        nextBreathPhase();
+        tickBreath();
+        breathTimer = setInterval(tickBreath, 1000);
+      }
+      function stopBreath() {
+        clearInterval(breathTimer);
+        breathTimer = null;
+        breathProgress.style.width = "0%";
+        setStatus("Stopped");
+      }
+
+      startBtn.addEventListener("click", startBreath);
+      stopBtn.addEventListener("click", stopBreath);
+
+      // Humming timer + optional reference tone (Web Audio)
+      let humTimer = null,
+        humSecs = 0,
+        humTotal = 0,
+        audioCtx = null,
+        osc = null;
+      const humStatus = qs("#humStatus");
+      const humProgress = qs("#humProgress");
+      const humStart = qs("#humStart");
+      const humStop = qs("#humStop");
+      const hzSlider = qs("#humPitch");
+      const hzLabel = qs("#hzLabel");
+      const toneToggle = qs("#toneToggle");
+
+      hzSlider.addEventListener("input", () => {
+        hzLabel.textContent = hzSlider.value;
+        if (osc) osc.frequency.value = Number(hzSlider.value);
+      });
+
+      function startTone() {
+        if (osc) return;
+        try {
+          audioCtx =
+            audioCtx ||
+            new (window.AudioContext || window.webkitAudioContext)();
+          osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.03; // very gentle
+          osc.type = "sine";
+          osc.frequency.value = Number(hzSlider.value);
+          osc.connect(gain).connect(audioCtx.destination);
+          osc.start();
+          setPressed(toneToggle, true);
+        } catch {
+          /* ignore */
+        }
+      }
+      function stopTone() {
+        if (!osc) return;
+        try {
+          osc.stop();
+          osc.disconnect();
+          osc = null;
+          setPressed(toneToggle, false);
+        } catch {}
+      }
+
+      toneToggle.addEventListener("click", () => {
+        if (osc) stopTone();
+        else startTone();
+      });
+
+      function startHum() {
+        if (humTimer) return;
+        const mins = Math.max(1, Number(qs("#humMinutes").value) || 2);
+        humTotal = humSecs = mins * 60;
+        setHum("Humming…");
+        humTick();
+        humTimer = setInterval(humTick, 1000);
+      }
+      function setHum(text) {
+        humStatus.textContent = text;
+        speak(text);
+      }
+      function humTick() {
+        if (humSecs <= 0) {
+          stopHum();
+          setHum("Complete");
+          return;
+        }
+        humSecs--;
+        const pct = Math.round(
+          ((humTotal - humSecs) / Math.max(1, humTotal)) * 100
+        );
+        humProgress.style.width = pct + "%";
+      }
+      function stopHum() {
+        clearInterval(humTimer);
+        humTimer = null;
+        humProgress.style.width = "0%";
+        setHum("Stopped");
+        stopTone();
+      }
+
+      humStart.addEventListener("click", startHum);
+      humStop.addEventListener("click", stopHum);
+
+      // Ground & Tap steps
+      const steps = Array.from(document.querySelectorAll("#tapList li"));
+      let stepIndex = 0;
+      highlightStep();
+      function highlightStep() {
+        steps.forEach((li, i) => {
+          li.classList.toggle("active", i === stepIndex);
+          li.style.borderColor =
+            i === stepIndex ? "var(--cc-accent)" : "rgba(255,255,255,.2)";
+        });
+        const s = document.getElementById("tapStatus");
+        if (s) s.textContent = `Step ${stepIndex + 1} of ${steps.length}`;
+        speak(steps[stepIndex].textContent);
+      }
+      qs("#tapNext").addEventListener("click", () => {
+        stepIndex = (stepIndex + 1) % steps.length;
+        highlightStep();
+      });
+      qs("#tapPrev").addEventListener("click", () => {
+        stepIndex = (stepIndex - 1 + steps.length) % steps.length;
+        highlightStep();
+      });
+
+      // 60-Second Reset with optional vibration cues
+      let resetTimer = null,
+        resetCount = 60;
+      const resetBtn = qs("#resetBtn");
+      const resetStop = qs("#resetStop");
+      resetBtn.addEventListener("click", () => {
+        if (resetTimer) return;
+        resetCount = 60;
+        setStatus(`Reset: ${resetCount}s`);
+        if (navigator.vibrate) navigator.vibrate([80, 20, 80]);
+        resetTimer = setInterval(() => {
+          resetCount--;
+          setStatus(`Reset: ${resetCount}s`);
+          if (resetCount % 15 === 0 && navigator.vibrate) navigator.vibrate(40);
+          if (resetCount <= 0) {
+            clearInterval(resetTimer);
+            resetTimer = null;
+            setStatus("Reset complete");
+          }
+        }, 1000);
+      });
+      resetStop.addEventListener("click", () => {
+        if (resetTimer) {
+          clearInterval(resetTimer);
+          resetTimer = null;
+          setStatus("Reset stopped");
+        }
+      });
+
+      // Mood log (localStorage)
+      const logKey = "calmCircuitLog";
+      const logBody = qs("#logBody");
+      const form = qs("#moodForm");
+
+      function readLog() {
+        return prefer.get(logKey, []);
+      }
+      function writeLog(arr) {
+        prefer.set(logKey, arr);
+        renderLog();
+      }
+
+      function renderLog() {
+        const rows = readLog()
+          .slice()
+          .reverse()
+          .map((r, i) => {
+            return `<tr><td>${new Date(r.t).toLocaleString()}</td><td>${
+              r.m
+            }</td><td>${r.n ?? ""}</td>
+          <td><button class="btn btn-sm btn-outline-danger" data-idx="${i}">Delete</button></td></tr>`;
+          })
+          .join("");
+        logBody.innerHTML =
+          rows ||
+          `<tr><td colspan="4" class="text-white-50">No entries yet.</td></tr>`;
+        logBody.querySelectorAll("button[data-idx]").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            const idx = Number(e.currentTarget.getAttribute("data-idx"));
+            const arr = readLog();
+            // idx is in reversed order; convert back
+            const real = arr.length - 1 - idx;
+            arr.splice(real, 1);
+            writeLog(arr);
+          });
+        });
+      }
+      renderLog();
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const mood = Number(
+          document.querySelector('input[name="mood"]:checked')?.value || 3
+        );
+        const note = qs("#note").value.trim();
+        const arr = readLog();
+        arr.push({ t: Date.now(), m: mood, n: note });
+        writeLog(arr);
+        form.reset();
+        qs("#m3").checked = true;
+        qs("#note").value = "";
+      });
+
+      // Export CSV
+      qs("#exportCsv").addEventListener("click", () => {
+        const arr = readLog();
+        const rows = [["timestamp", "iso_date", "mood", "note"]].concat(
+          arr.map((r) => [
+            r.t,
+            new Date(r.t).toISOString(),
+            r.m,
+            (r.n || "").replace(/"/g, '""'),
+          ])
+        );
+        const csv = rows
+          .map((r) => r.map((x) => `"${String(x)}"`).join(","))
+          .join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "calm_circuit_log.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Clear log
+      qs("#clearLog").addEventListener("click", () => {
+        if (confirm("Delete all saved check-ins?")) {
+          writeLog([]);
+        }
+      });
+    </script>
+  </body>
+</html>
